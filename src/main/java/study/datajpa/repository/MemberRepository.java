@@ -1,5 +1,7 @@
 package study.datajpa.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -36,5 +38,16 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     List<Member> findListByUsername(String username); // 컬렉션
     Member findMemberByUsername(String username); // 단건
     Optional<Member> findOptionalByUsername(String username); // Optional
+
+
+    /**
+     * Count 쿼리를 별개로 작성하여 사용할 수 있다. ( 단 where, on 조건이 없고 left join 이라는 가정하에..)
+     * 아래 쿼리는 join이 존재하지만 count 쿼리는 join 이 없어도 그 수는 left join 쿼리의 수와 같기 때문에 count 쿼리의 최적화를 위해 사용된다.
+     * @param age
+     * @param pageable
+     * @return
+     */
+    @Query(value = "select m from Member m left join m.team t", countQuery = "select count(m) from Member m")
+    Page<Member> findByAge(int age, Pageable pageable);
 
 }
