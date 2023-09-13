@@ -1,5 +1,7 @@
 package study.datajpa.repository;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,6 +31,8 @@ class MemberRepositoryTest {
     MemberRepository memberRepository;
     @Autowired
     TeamRepository teamRepository;
+    @PersistenceContext
+    EntityManager em;
 
     @Test
     public void testMember() {
@@ -212,6 +216,27 @@ class MemberRepositoryTest {
         assertThat(page.hasNext()).isTrue();
     }
 
+    @Test
+    public void bulkUpdate(){
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 19));
+        memberRepository.save(new Member("member3", 20));
+        memberRepository.save(new Member("member4", 21));
+        memberRepository.save(new Member("member5", 40));
+
+        int result = memberRepository.bulkAgePlus(20);
+
+        em.flush();
+        em.clear();
+
+        // !!! 영속성 컨텍스트와 DB 간의 데이터 불일치 주의 !!!!
+        // 영속성 컨텍스트에는 반영이 안되어 있을 수 있으므로 이전에 em.clear()로 영속성 컨텍스트 초기화를 진행해야 한다.
+        List<Member> findMembers = memberRepository.findByUsername("member5");
+        Member member5 = findMembers.get(0);
+
+
+        assertThat(result).isEqualTo(3);
+    }
 
 
 
