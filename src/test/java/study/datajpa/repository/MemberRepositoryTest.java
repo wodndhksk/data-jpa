@@ -47,7 +47,7 @@ class MemberRepositoryTest {
     }
 
     @Test
-    public void basicCRUD(){
+    public void basicCRUD() {
         Member member1 = new Member("member1");
         Member member2 = new Member("member2");
         memberRepository.save(member1);
@@ -73,7 +73,7 @@ class MemberRepositoryTest {
     }
 
     @Test
-    public void findByUsernameAndAgeGreaterThan(){
+    public void findByUsernameAndAgeGreaterThan() {
         Member m1 = new Member("AAA", 10);
         Member m2 = new Member("AAA", 20);
 
@@ -92,7 +92,7 @@ class MemberRepositoryTest {
     }
 
     @Test
-    public void testNamedQuery(){
+    public void testNamedQuery() {
         Member m1 = new Member("AAA", 10);
         Member m2 = new Member("AAA", 20);
 
@@ -104,7 +104,7 @@ class MemberRepositoryTest {
     }
 
     @Test
-    public void testQuery(){
+    public void testQuery() {
         Member m1 = new Member("AAA", 10);
         Member m2 = new Member("AAA", 20);
 
@@ -116,7 +116,7 @@ class MemberRepositoryTest {
     }
 
     @Test
-    public void findUsernameList(){
+    public void findUsernameList() {
         Member m1 = new Member("AAA", 10);
         Member m2 = new Member("BBB", 20);
 
@@ -131,7 +131,7 @@ class MemberRepositoryTest {
 
 
     @Test
-    public void findMemberDto(){
+    public void findMemberDto() {
         Team team = new Team("TeamA");
         teamRepository.save(team);
 
@@ -147,7 +147,7 @@ class MemberRepositoryTest {
     }
 
     @Test
-    public void findByNames(){
+    public void findByNames() {
         Member m1 = new Member("AAA", 10);
         Member m2 = new Member("BBB", 20);
 
@@ -161,7 +161,7 @@ class MemberRepositoryTest {
     }
 
     @Test
-    public void returnType(){
+    public void returnType() {
         Member m1 = new Member("AAA", 10);
         Member m2 = new Member("BBB", 20);
 
@@ -179,7 +179,7 @@ class MemberRepositoryTest {
     }
 
     @Test
-    public void paging(){
+    public void paging() {
         //given
         memberRepository.save(new Member("member1", 10));
         memberRepository.save(new Member("member2", 10));
@@ -217,7 +217,7 @@ class MemberRepositoryTest {
     }
 
     @Test
-    public void bulkUpdate(){
+    public void bulkUpdate() {
         memberRepository.save(new Member("member1", 10));
         memberRepository.save(new Member("member2", 19));
         memberRepository.save(new Member("member3", 20));
@@ -238,7 +238,7 @@ class MemberRepositoryTest {
     }
 
     @Test
-    public void findMemberLazy(){
+    public void findMemberLazy() {
         //given
         //member1 -> teamA
         //member2 -> teamB
@@ -268,6 +268,31 @@ class MemberRepositoryTest {
 
     }
 
+    @Test
+    public void queryHint() {
+        //given
+        Member member1 = new Member("member1", 10);
+        memberRepository.save(member1);
+        em.flush();
+        em.clear();
 
+        Member findMember = memberRepository.findReadOnlyByUsername(member1.getUsername());
+        findMember.setUsername("member2");
+        em.flush();
+    }
 
+    /**
+     * Lock 에 관련된 자세한 내용은 jpa 책 마지막 부분을 통해 공부하기 바람.
+     * 현재는 JPA에서 lock을 제공해주고 사용할 수 있다는 정도만 학습.
+     */
+    @Test
+    public void lock() {
+        //given
+        Member member1 = new Member("member1", 10);
+        memberRepository.save(member1);
+        em.flush();
+        em.clear();
+
+        List<Member> result = memberRepository.findLockByUsername(member1.getUsername());
+    }
 }
