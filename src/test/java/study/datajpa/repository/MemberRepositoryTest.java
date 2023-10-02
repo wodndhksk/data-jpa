@@ -2,7 +2,6 @@ package study.datajpa.repository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,10 +10,11 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.datajpa.dto.MemberDto;
+import study.datajpa.entity.UsernameOnly;
 import study.datajpa.entity.Member;
 import study.datajpa.entity.Team;
+import study.datajpa.entity.UsernameOnlyDto;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -352,5 +352,32 @@ class MemberRepositoryTest {
 
         assertThat(result.get(0).getUsername()).isEqualTo("m1");
 
+    }
+
+    @Test
+    public void usernameOnly(){
+        //given
+        Team temaA = new Team("teamA");
+        em.persist(temaA);
+
+        Member m1 = new Member("m1", 0, temaA);
+        Member m2 = new Member("m2", 0, temaA);
+
+        em.persist(m1);
+        em.persist(m2);
+
+        em.flush();
+        em.clear();
+
+//        List<UsernameOnly> result = memberRepository.findProjectionsByUsername("m1");
+//        List<UsernameOnlyDto> result = memberRepository.findProjectionsByUsername("m1", UsernameOnlyDto.class);
+        List<NestedProjections> result = memberRepository.findProjectionsByUsername("m1", NestedProjections.class);
+
+        for (NestedProjections nestedProjections : result) {
+            String username = nestedProjections.getUsername();
+            System.out.println("username = " + username);
+            String name = nestedProjections.getTeam().getName();
+            System.out.println("name = " + name);
+        }
     }
 }
